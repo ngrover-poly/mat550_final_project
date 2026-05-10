@@ -30,17 +30,16 @@ df = load_data()
 # --- 2. Sidebar Controls ---
 st.sidebar.header("Dashboard Controls")
 
+target = st.sidebar.selectbox("Select Target Series", df.columns)
+horizon = st.sidebar.slider("Forecast Horizon (Months)", 1, 24, 12)
+model_family = st.sidebar.radio("Select Model Family", 
+                                ["Holt-Winters (Smoothing)", "ARIMA (Box-Jenkins)", "Machine Learning (XGBoost)"])
 st.sidebar.info(
     "**About this System:**\n\n"
     "This dashboard forecasts monthly US Labor Market dynamics (Job openings, Hires, and Quits) "
     "using data from the Bureau of Labor Statistics JOLTS report. Select parameters below "
     "to explore future trends and evaluate statistical diagnostics."
 )
-
-target = st.sidebar.selectbox("Select Target Series", df.columns)
-horizon = st.sidebar.slider("Forecast Horizon (Months)", 1, 24, 12)
-model_family = st.sidebar.radio("Select Model Family", 
-                                ["Holt-Winters (Smoothing)", "ARIMA (Box-Jenkins)", "Machine Learning (XGBoost)"])
 
 # Keep the last 24 months as the test set
 train = df[target].iloc[:-24]
