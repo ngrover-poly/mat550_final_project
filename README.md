@@ -14,4 +14,4 @@ This study identifies the lead-lag relationship between labor demand and recruit
 
 ## Links
 * Streamlit Dashboard: https://mat550finalproject-escfwnzssvalpthtyjytdb.streamlit.app/
-* Project Video: 
+* Project Video: https://youtu.be/pYwX4Yh6pZ4
