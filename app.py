@@ -37,7 +37,7 @@ model_family = st.sidebar.radio("Select Model Family",
 st.sidebar.info(
     "**About this System:**\n\n"
     "This dashboard forecasts monthly US Labor Market dynamics (Job openings, Hires, and Quits) "
-    "using data from the Bureau of Labor Statistics JOLTS report. Select parameters below "
+    "using data from the Bureau of Labor Statistics JOLTS report. You can edit parameters "
     "to explore future trends and evaluate statistical diagnostics."
 )
 
