@@ -32,8 +32,8 @@ st.sidebar.header("Dashboard Controls")
 
 st.sidebar.info(
     "**About this System:**\n\n"
-    "This tool forecasts US Labor Market dynamics (Openings, Hires, and Quits) "
-    "using data from the Bureau of Labor Statistics. Select your parameters below "
+    "This dashboard forecasts monthly US Labor Market dynamics (Job openings, Hires, and Quits) "
+    "using data from the Bureau of Labor Statistics JOLTS report. Select parameters below "
     "to explore future trends and evaluate statistical diagnostics."
 )
 
@@ -46,7 +46,7 @@ model_family = st.sidebar.radio("Select Model Family",
 train = df[target].iloc[:-24]
 test = df[target].iloc[-24:]
 
-# FIX: We predict the 24 historical test months PLUS the actual future horizon
+# Predict the 24 historical test months PLUS the actual future horizon
 total_steps = 24 + horizon 
 
 if model_family == "Holt-Winters (Smoothing)":
@@ -105,7 +105,7 @@ elif model_family == "Machine Learning (XGBoost)":
         st.error(f"XGBoost model file not found at {model_path}.")
         full_forecast = np.full(total_steps, np.nan)
 
-# Split the giant forecast into "Test Coverage" and "Actual Future"
+# Split the forecast into "Test Coverage" and "Actual Future"
 test_forecast = full_forecast[:24]
 future_forecast = full_forecast[24:]
 future_lower = lower_bound[24:]
