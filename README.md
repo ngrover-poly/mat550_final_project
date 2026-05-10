@@ -11,3 +11,7 @@
 
 ## Project Impact
 This study identifies the lead-lag relationship between labor demand and recruitment, providing a tool for decision-makers to anticipate market cooling or tightening up to 12 months in advance.
+
+## Links
+* Streamlit Dashboard: https://mat550finalproject-escfwnzssvalpthtyjytdb.streamlit.app/
+* Project Video: 
