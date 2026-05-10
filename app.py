@@ -128,39 +128,75 @@ ax.set_ylabel("Rate (%)")
 ax.legend(loc="upper left")
 ax.grid(alpha=0.3)
 st.pyplot(fig)
+
 # --- 5. Diagnostics & Metrics Panel ---
 st.markdown("---")
+st.subheader("Model Diagnostics & Validation")
+
 col1, col2 = st.columns([1, 2])
 
-# Calculate how much of the forecast overlaps with our known test set
-overlap = min(horizon, len(test))
-
 with col1:
-    st.subheader("Model Accuracy")
-    if overlap > 0 and not np.isnan(forecast).all():
-        mae = mean_absolute_error(test.iloc[:overlap], forecast[:overlap])
-        st.metric(label=f"MAE (First {overlap} months)", value=f"{mae:.4f}")
-        st.write("*Lower MAE indicates better predictive accuracy on the holdout set.*")
+    st.markdown("### Error Metrics (Holdout Set)")
+    
+    if len(test) == len(test_forecast) and not np.isnan(test_forecast).all():
+        # Calculate Metrics
+        mae = mean_absolute_error(test, test_forecast)
+        rmse = np.sqrt(mean_squared_error(test, test_forecast))
+        
+        # Requirement: Summary table comparing accuracy
+        metrics_df = pd.DataFrame({
+            "Metric": ["Mean Absolute Error (MAE)", "Root Mean Sq. Error (RMSE)"],
+            "Value": [f"{mae:.4f}", f"{rmse:.4f}"]
+        })
+        st.table(metrics_df)
+        
+        # Calculate Residuals for the tests
+        # We flatten test.values in case of dimensionality issues
+        residuals = test.values.flatten() - test_forecast
+        
+        # Requirement: Ljung-Box Formal Test from Notebook
+        st.markdown("### Residual White Noise Test")
+        lb_test = acorr_ljungbox(residuals, lags=[10])
+        p_value = lb_test.lb_pvalue.values[0]
+        
+        if p_value > 0.05:
+            st.success(f"**Pass (p={p_value:.3f}):** Residuals are White Noise.")
+            st.write("*The model has captured all available signals. Forecasts are statistically sound.*")
+        else:
+            st.error(f"**Fail (p={p_value:.3f}):** Residuals have remaining structure.")
+            st.write("*The model missed some patterns (e.g., missed seasonality).*")
+            
     else:
-        st.write("Not enough overlap to calculate test metrics.")
+        st.write("Run a valid forecast to see metrics.")
 
 with col2:
-    st.subheader("Residual Diagnostics")
-    if overlap > 0 and not np.isnan(forecast).all():
-        residuals = test.iloc[:overlap].values - forecast[:overlap]
-        
-        fig_res, ax_res = plt.subplots(1, 2, figsize=(10, 3))
-        
-        # Plot 1: Residuals over time
-        ax_res[0].plot(residuals, marker='o')
-        ax_res[0].axhline(0, color='black', linestyle='--')
-        ax_res[0].set_title("Errors Over Time")
-        
-        # Plot 2: Histogram
-        ax_res[1].hist(residuals, bins=10, edgecolor='black')
-        ax_res[1].set_title("Error Distribution")
-        
+    st.markdown("### Diagnostic Plots")
+    if len(test) == len(test_forecast) and not np.isnan(test_forecast).all():
+        # Requirement: The 4-plot diagnostic panel from your notebook
+        fig_diag = plt.figure(figsize=(10, 8))
+        gs = fig_diag.add_gridspec(2, 2)
+
+        # 1. Residuals Over Time
+        ax1 = fig_diag.add_subplot(gs[0, 0])
+        ax1.plot(test.index, residuals, marker='o')
+        ax1.axhline(0, color='red', linestyle='--')
+        ax1.set_title('Residuals Over Time')
+
+        # 2. Histogram / Normality
+        ax2 = fig_diag.add_subplot(gs[0, 1])
+        sns.histplot(residuals, kde=True, ax=ax2, edgecolor='black')
+        ax2.set_title('Distribution of Errors')
+
+        # 3. Autocorrelation (ACF)
+        ax3 = fig_diag.add_subplot(gs[1, 0])
+        # Using lags=10 since our holdout set is only 24 months long
+        sm.graphics.tsa.plot_acf(residuals, lags=10, ax=ax3)
+        ax3.set_title('Residual Autocorrelation (ACF)')
+
+        # 4. Q-Q Plot
+        ax4 = fig_diag.add_subplot(gs[1, 1])
+        stats.probplot(residuals, dist="norm", plot=ax4)
+        ax4.set_title('Normal Q-Q Plot')
+
         plt.tight_layout()
-        st.pyplot(fig_res)
-    else:
-        st.write("Run a forecast within the test horizon to see diagnostics.")
+        st.pyplot(fig_diag)
