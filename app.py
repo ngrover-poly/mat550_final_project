@@ -29,6 +29,14 @@ df = load_data()
 
 # --- 2. Sidebar Controls ---
 st.sidebar.header("Dashboard Controls")
+
+st.sidebar.info(
+    "**About this System:**\n\n"
+    "This tool forecasts US Labor Market dynamics (Openings, Hires, and Quits) "
+    "using data from the Bureau of Labor Statistics. Select your parameters below "
+    "to explore future trends and evaluate statistical diagnostics."
+)
+
 target = st.sidebar.selectbox("Select Target Series", df.columns)
 horizon = st.sidebar.slider("Forecast Horizon (Months)", 1, 24, 12)
 model_family = st.sidebar.radio("Select Model Family", 
