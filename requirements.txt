@@ -7,3 +7,5 @@ statsmodels
 pmdarima
 xgboost
 scikit-learn
+seaborn
+scipy
